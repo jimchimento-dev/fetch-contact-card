@@ -1,10 +1,13 @@
 /* Pseudo Code
     1. Create an async function that pulls data from https://jsonplaceholder.typicode.com/users
     2. Store and return that data in a fetchData function
-    3. Create a renderCard function that creates a card component within the DOM. Each card should display person's title, address and a delete button
-    4. Create an async function that renders the cards (appending to the DOM) using the data from our fetchData function
-    5. Create a deleteButton function which will remove a card from the UI 
-    5. Apply some light styles to the card to make them pop. 3 cards in a row desktop view, 1 for mobile
+    3. Create a renderCard function that creates a card component within the DOM 
+    4. Each card should display person's title, address and a delete button
+    5. Create an async function that renders the cards (appending to the DOM) using the data from our fetchData function
+    6. Add an event listener to delete button that will remove a specific contact card from the DOM
+    7. Display confirmation text when delete button is clicked
+    8. Display the number of records dynamically to a user. When a record (card) is deleted, update the total number of records displayed
+    9. Apply some light styles to the card to make them pop. 3 cards in a row desktop view, 2 for tablet view, 1 for mobile
 */ 
 
 const fetchData = async () => {
@@ -35,7 +38,7 @@ const renderCard = item => {
     cardHeader.textContent = item.name;
    
     const cardBody = document.createElement("div");
-    cardBody.classList = "card-body mt-3";
+    cardBody.classList = "card-body mt-2";
      if (item.address) {
         const addressText = `${item.address.street}<br>${item.address.suite}<br>${item.address.city}, ${item.address.zipcode}`;
         cardBody.innerHTML = addressText;
@@ -47,12 +50,25 @@ const renderCard = item => {
     deleteButton.classList = "btn-danger py-2 mx-5 mb-4";
     deleteButton.innerHTML = "<i class='fa-solid fa-trash'> Delete</i>";
 
+    deleteButton.addEventListener("click", () => {
+        if (confirm("Would you like to delete this contact?")) {
+        card.remove();
+        displayRecordCount();
+        }
+    })
+
     cardContent.appendChild(cardHeader);
     cardContent.appendChild(cardBody);
     cardContent.appendChild(deleteButton);
     card.appendChild(cardContent);
 
     return card;
+}
+
+const displayRecordCount = () => {
+    const totalRecords = document.querySelectorAll("#contact-container .card").length;
+    const recordContainer = document.getElementById("records-container");
+    recordContainer.textContent = `Showing ${totalRecords} Records`;
 }
 
 const renderCards = async () => {
@@ -62,6 +78,7 @@ const renderCards = async () => {
         cardData.forEach(item => {
             const card = renderCard(item);
             contactContainer.appendChild(card);
+            displayRecordCount();
         })
     }
     catch(error) {
